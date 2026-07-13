@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: backend
+  datasource:
+    url: jdbc:sqlite:${user.home}/.wardenpos/wardenpos.db?journal_mode=WAL&synchronous=NORMAL&busy_timeout=5000
+    driver-class-name: org.sqlite.JDBC
+  profiles:
+    active: dev
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  jooq:
+    sql-dialect: sqlite
+
+server:
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,application/json
+  jetty:
+    threads:
+      min: 20
+      max: 200
+      idle-timeout: 60000ms
+    connection-idle-timeout: 30000ms
+    max-http-form-post-size: 2MB
+
+logging:
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} %-5level [%X{traceId}] %logger{36} - %msg%n'
+  # noinspection SpringYamlInspection
+  level:
+    root: INFO
+    web: DEBUG
+    org:
+      springframework:
+        web: WARN
+        security: DEBUG
+    com.zaxxer.hikari: WARN
+    io.undertow.websockets.jsr: ERROR

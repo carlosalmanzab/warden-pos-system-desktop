@@ -1,0 +1,374 @@
+Table categories [headercolor: #175e7a] {
+	id int [ pk, unique ]
+	name varchar
+}
+
+Table products [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	sku varchar
+	barcode varchar
+	name varchar
+	category_id int
+	is_active boolean
+}
+
+Table warehouses [headercolor: #175e7a] {
+	id int [ pk, unique ]
+	name varchar
+	location varchar
+}
+
+Table inventory_stock [headercolor: #175e7a] {
+	product_id uuid
+	warehouse_id int
+	quantity decimal
+
+	indexes {
+		(product_id, warehouse_id) [ name: 'inventory_stock_index_0' ]
+	}
+}
+
+Table suppliers [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	supplier_code varchar
+	company_name varchar
+	contact_name varchar
+	phone varchar
+	email varchar
+	tax_identifier varchar
+}
+
+Table product_batches [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	product_id uuid
+	batch_number varchar
+	supplier_id uuid
+	manufacturing_date date
+	expiry_date date
+	created_at timestamp
+}
+
+Table batch_stock [headercolor: #175e7a] {
+	batch_id uuid
+	warehouse_id int
+	quantity decimal
+
+	indexes {
+		(batch_id, warehouse_id) [ name: 'batch_stock_index_1' ]
+	}
+}
+
+Table expiration_alerts [headercolor: #175e7a] {
+	id int [ pk, unique ]
+	product_id uuid
+	days_before_alert int
+	action_required varchar
+}
+
+Table roles [headercolor: #175e7a] {
+	id int [ pk, unique ]
+	name varchar
+}
+
+Table permissions [headercolor: #175e7a] {
+	id int [ pk, unique ]
+	name varchar
+}
+
+Table role_permissions [headercolor: #175e7a] {
+	role_id int
+	permission_id int
+
+	indexes {
+		(role_id, permission_id) [ name: 'role_permissions_index_2' ]
+	}
+}
+
+Table employees [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	username varchar
+	password_hash varchar
+	first_name varchar
+	last_name varchar
+	email varchar
+	role_id int
+	is_active boolean
+}
+
+Table customers [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	customer_number varchar
+	name varchar
+	tax_identifier varchar
+	phone varchar
+	email varchar
+	credit_limit decimal
+}
+
+Table sales [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	created_at timestamp
+	total_amount decimal
+	employee_id uuid
+}
+
+Table sale_items [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	sale_id uuid
+	product_id uuid
+	batch_id uuid
+	quantity decimal
+	unit_price decimal
+	subtotal decimal
+}
+
+Table invoices [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	sale_id uuid
+	customer_id uuid
+	invoice_serial varchar
+	subtotal decimal
+	tax_amount decimal
+	discount_amount decimal
+	grand_total decimal
+	status varchar
+}
+
+Table invoice_payments [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	invoice_id uuid
+	payment_method varchar
+	amount decimal
+	processed_at timestamp
+}
+
+Table purchase_orders [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	po_number varchar
+	supplier_id uuid
+	warehouse_id int
+	status varchar
+	created_at timestamp
+}
+
+Table purchase_items [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	purchase_order_id uuid
+	product_id uuid
+	batch_id uuid
+	quantity_ordered decimal
+	quantity_received decimal
+	unit_cost decimal
+}
+
+Table stock_movements [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	product_id uuid
+	warehouse_id int
+	batch_id uuid
+	movement_type varchar
+	source_type varchar
+	source_id varchar
+	quantity decimal
+	created_at timestamp
+}
+
+Table kardex [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	movement_id uuid
+	input_qty decimal
+	input_unit_cost decimal
+	input_total_cost decimal
+	output_qty decimal
+	output_unit_cost decimal
+	output_total_cost decimal
+	balance_qty decimal
+	balance_unit_cost decimal
+	balance_total_cost decimal
+	created_at timestamp
+}
+
+Table expense_categories [headercolor: #175e7a] {
+	id int [ pk, unique ]
+	name varchar
+	description text
+}
+
+Table expenses [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	expense_category_id int
+	warehouse_id int
+	employee_id uuid
+	supplier_id uuid
+	amount decimal
+	tax_amount decimal
+	payment_method varchar
+	status varchar
+	reference_number varchar
+	attachment_url varchar
+	expense_date date
+	created_at timestamp
+}
+
+Table petty_cash_ledger [headercolor: #175e7a] {
+	id uuid [ pk, unique ]
+	warehouse_id int
+	employee_id uuid
+	expense_id uuid
+	amount decimal
+	type varchar
+	reason varchar
+	created_at timestamp
+}
+
+Table audit_logs [headercolor: #175e7a] {
+	id bigint [ pk, unique ]
+	employee_id uuid
+	action varchar
+	table_name varchar
+	record_id varchar
+	old_values json
+	new_values json
+	ip_address varchar
+	created_at timestamp
+}
+
+Ref fk_products_category_id_categories {
+	products.category_id > categories.id [ delete: no action, update: no action ]
+}
+
+Ref fk_inventory_stock_product_id_products {
+	inventory_stock.product_id > products.id [ delete: no action, update: no action ]
+}
+
+Ref fk_inventory_stock_warehouse_id_warehouses {
+	inventory_stock.warehouse_id > warehouses.id [ delete: no action, update: no action ]
+}
+
+Ref fk_product_batches_product_id_products {
+	product_batches.product_id > products.id [ delete: no action, update: no action ]
+}
+
+Ref fk_product_batches_supplier_id_suppliers {
+	product_batches.supplier_id > suppliers.id [ delete: no action, update: no action ]
+}
+
+Ref fk_batch_stock_batch_id_product_batches {
+	batch_stock.batch_id > product_batches.id [ delete: no action, update: no action ]
+}
+
+Ref fk_batch_stock_warehouse_id_warehouses {
+	batch_stock.warehouse_id > warehouses.id [ delete: no action, update: no action ]
+}
+
+Ref fk_expiration_alerts_product_id_products {
+	expiration_alerts.product_id > products.id [ delete: no action, update: no action ]
+}
+
+Ref fk_role_permissions_role_id_roles {
+	role_permissions.role_id > roles.id [ delete: no action, update: no action ]
+}
+
+Ref fk_role_permissions_permission_id_permissions {
+	role_permissions.permission_id > permissions.id [ delete: no action, update: no action ]
+}
+
+Ref fk_employees_role_id_roles {
+	employees.role_id > roles.id [ delete: no action, update: no action ]
+}
+
+Ref fk_sales_employee_id_employees {
+	sales.employee_id > employees.id [ delete: no action, update: no action ]
+}
+
+Ref fk_sale_items_sale_id_sales {
+	sale_items.sale_id > sales.id [ delete: no action, update: no action ]
+}
+
+Ref fk_sale_items_product_id_products {
+	sale_items.product_id > products.id [ delete: no action, update: no action ]
+}
+
+Ref fk_sale_items_batch_id_product_batches {
+	sale_items.batch_id > product_batches.id [ delete: no action, update: no action ]
+}
+
+Ref fk_invoices_sale_id_sales {
+	invoices.sale_id - sales.id [ delete: no action, update: no action ]
+}
+
+Ref fk_invoices_customer_id_customers {
+	invoices.customer_id > customers.id [ delete: no action, update: no action ]
+}
+
+Ref fk_invoice_payments_invoice_id_invoices {
+	invoice_payments.invoice_id > invoices.id [ delete: no action, update: no action ]
+}
+
+Ref fk_purchase_orders_supplier_id_suppliers {
+	purchase_orders.supplier_id > suppliers.id [ delete: no action, update: no action ]
+}
+
+Ref fk_purchase_orders_warehouse_id_warehouses {
+	purchase_orders.warehouse_id > warehouses.id [ delete: no action, update: no action ]
+}
+
+Ref fk_purchase_items_purchase_order_id_purchase_orders {
+	purchase_items.purchase_order_id > purchase_orders.id [ delete: no action, update: no action ]
+}
+
+Ref fk_purchase_items_product_id_products {
+	purchase_items.product_id > products.id [ delete: no action, update: no action ]
+}
+
+Ref fk_purchase_items_batch_id_product_batches {
+	purchase_items.batch_id > product_batches.id [ delete: no action, update: no action ]
+}
+
+Ref fk_stock_movements_product_id_products {
+	stock_movements.product_id > products.id [ delete: no action, update: no action ]
+}
+
+Ref fk_stock_movements_warehouse_id_warehouses {
+	stock_movements.warehouse_id > warehouses.id [ delete: no action, update: no action ]
+}
+
+Ref fk_stock_movements_batch_id_product_batches {
+	stock_movements.batch_id > product_batches.id [ delete: no action, update: no action ]
+}
+
+Ref fk_kardex_movement_id_stock_movements {
+	kardex.movement_id - stock_movements.id [ delete: no action, update: no action ]
+}
+
+Ref fk_expenses_expense_category_id_expense_categories {
+	expenses.expense_category_id > expense_categories.id [ delete: no action, update: no action ]
+}
+
+Ref fk_expenses_warehouse_id_warehouses {
+	expenses.warehouse_id > warehouses.id [ delete: no action, update: no action ]
+}
+
+Ref fk_expenses_employee_id_employees {
+	expenses.employee_id > employees.id [ delete: no action, update: no action ]
+}
+
+Ref fk_expenses_supplier_id_suppliers {
+	expenses.supplier_id > suppliers.id [ delete: no action, update: no action ]
+}
+
+Ref fk_petty_cash_ledger_warehouse_id_warehouses {
+	petty_cash_ledger.warehouse_id > warehouses.id [ delete: no action, update: no action ]
+}
+
+Ref fk_petty_cash_ledger_employee_id_employees {
+	petty_cash_ledger.employee_id > employees.id [ delete: no action, update: no action ]
+}
+
+Ref fk_petty_cash_ledger_expense_id_expenses {
+	petty_cash_ledger.expense_id > expenses.id [ delete: no action, update: no action ]
+}
+
+Ref fk_audit_logs_employee_id_employees {
+	audit_logs.employee_id > employees.id [ delete: no action, update: no action ]
+}

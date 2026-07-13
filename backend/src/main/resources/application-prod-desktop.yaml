@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: prod-desktop
+  jmx:
+    enabled: false
+  devtools:
+    restart:
+      enabled: false
+  datasource:
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
+      idle-timeout: 10000
+
+logging:
+  file:
+    name: /logs/app.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 7
