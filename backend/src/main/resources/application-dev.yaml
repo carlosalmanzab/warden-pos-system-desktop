@@ -14,3 +14,24 @@ logging:
       jooq:
         tools:
           LoggerListener: debug
+
+wardenpos:
+  app:
+    jwt-secret: 586E3272357538782F413F4428472B4B6250655368566B597033733676397924
+    jwt-expiration: 3600000
+    cors-allowed-origins:
+      - "*"
+      - http://localhost:5173
+
+    path-white-list:
+      - /api/v1/auth/*
+      - /swagger-ui/**
+      - /swagger-ui.html
+      - /swagger
+      - /swagger/**
+      - /v3/api-docs/**
+      - /docs
+      - /docs/**
+      - /actuator/health
+      - /actuator/health/**
+      - /error

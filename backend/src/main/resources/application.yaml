@@ -11,6 +11,11 @@ spring:
     baseline-on-migrate: true
   jooq:
     sql-dialect: sqlite
+  mvc:
+    apiversion:
+      default: 1.0
+      use:
+        header: X-API-VERSION
 
 server:
   compression:
@@ -23,6 +28,14 @@ server:
       idle-timeout: 60000ms
     connection-idle-timeout: 30000ms
     max-http-form-post-size: 2MB
+  servlet:
+    context-path: /api
+
+springdoc:
+  api-docs:
+    path: /docs
+  swagger-ui:
+    path: /swagger
 
 logging:
   pattern:
