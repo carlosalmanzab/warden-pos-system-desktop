@@ -3,6 +3,7 @@ package me.carlosalmanzab.wardenpos.backend.core.config;
 import static org.jooq.conf.ExecuteWithoutWhere.THROW;
 import static org.jooq.conf.RenderNameCase.LOWER;
 
+import me.carlosalmanzab.wardenpos.backend.core.listeners.jooq.UUIDv7RecordListener;
 import org.jooq.RecordListenerProvider;
 import org.jooq.conf.Settings;
 import org.jooq.impl.DefaultRecordListenerProvider;

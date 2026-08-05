@@ -1,227 +1,91 @@
-import com.github.spotbugs.snom.Confidence
-import com.github.spotbugs.snom.Effort
-import com.github.spotbugs.snom.SpotBugsTask
-
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.1.0'
-	id 'io.spring.dependency-management' version '1.1.7'
-	id 'org.graalvm.buildtools.native' version '1.1.2'
-	id "org.jooq.jooq-codegen-gradle" version '3.21.6'
-	id 'com.diffplug.spotless' version '8.8.0'
-	id "com.github.spotbugs" version "6.5.9"
+    id 'java'
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.graalvm.native)
+    alias(libs.plugins.jooq.codegen)
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.spotbugs)
 }
 
 group = 'me.carlosalmanzab.wardenpos'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(25)
-		vendor = JvmVendorSpec.matching("GraalVM")
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+        vendor = JvmVendorSpec.matching("GraalVM")
+    }
 }
 
 repositories {
-	mavenCentral()
-}
-
-spotless {
-	java {
-		target("src/**/*.java")
-		googleJavaFormat()
-		removeUnusedImports()
-		formatAnnotations()
-		trimTrailingWhitespace()
-		endWithNewline()
-	}
-	groovyGradle {
-		target("*.gradle")
-		greclipse()
-	}
-}
-
-spotbugs {
-	effort = Effort.MAX
-	reportLevel = Confidence.valueOf('MEDIUM')
+    mavenCentral()
 }
 
 sourceSets {
-	main {
-		java {
-			srcDir tasks.named('jooqCodegen')
-		}
-	}
-	codegenTools {
-		java {
-			srcDirs = [
-				'src/codegenTools/java',
-				'src/main/java'
-			]
-			include 'me/carlosalmanzab/wardenpos/buildtools/**'
-			include 'me/carlosalmanzab/wardenpos/jooq/codegen/**'
-			include 'me/carlosalmanzab/wardenpos/jooq/converter/**'
-		}
-	}
+    main {
+        java {
+            srcDir tasks.named('jooqCodegen')
+        }
+    }
+    codegenTools {
+        java {
+            srcDirs = [
+                    'src/codegenTools/java',
+                    'src/main/java'
+            ]
+            include 'me/carlosalmanzab/wardenpos/buildtools/**'
+            include 'me/carlosalmanzab/wardenpos/jooq/codegen/**'
+            include 'me/carlosalmanzab/wardenpos/jooq/converter/**'
+        }
+    }
 }
-
-//configurations {
-//    codegenMigrationRuntime
-//}
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-flyway'
-	implementation 'org.springframework.boot:spring-boot-starter-jooq'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation('org.springframework.boot:spring-boot-starter-webmvc') {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
-		exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-xml'
-	}
-	implementation 'org.springframework.boot:spring-boot-starter-jetty'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation('org.springframework.boot:spring-boot-starter-webmvc') {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-xml'
+    }
+    implementation 'org.springframework.boot:spring-boot-starter-jetty'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
-	implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
-	implementation 'io.jsonwebtoken:jjwt-impl:0.13.0'
-	implementation 'io.jsonwebtoken:jjwt-jackson:0.13.0'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
-	implementation 'org.mapstruct:mapstruct:1.6.3'
-	implementation 'com.fasterxml.uuid:java-uuid-generator:4.3.0' // Added for UUIDv7 generation
+    implementation libs.jjwt.api
+    implementation libs.jjwt.impl
+    implementation libs.jjwt.jackson
 
-	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-	annotationProcessor 'org.projectlombok:lombok:1.18.42'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    implementation libs.springdoc
+    implementation libs.mapstruct.core
+    implementation libs.uuid.generator
 
-	runtimeOnly 'org.xerial:sqlite-jdbc'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor libs.mapstruct.processor
 
-	compileOnly 'org.projectlombok:lombok'
-	compileOnly 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
+    runtimeOnly libs.sqlite
+    compileOnly 'jakarta.xml.bind:jakarta.xml.bind-api:4.0.2'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    jooqCodegen libs.sqlite
+    jooqCodegen libs.uuid.generator
+    jooqCodegen files(sourceSets.codegenTools.output)
 
-	jooqCodegen 'org.xerial:sqlite-jdbc:3.46.1.3'
-	jooqCodegen 'com.fasterxml.uuid:java-uuid-generator:4.3.0' // Added for UUIDv7 generation
-	jooqCodegen files(sourceSets.codegenTools.output)
-
-	codegenToolsImplementation 'org.flywaydb:flyway-core:11.7.2'
-	codegenToolsImplementation 'org.xerial:sqlite-jdbc:3.46.1.3'
-	codegenToolsImplementation 'org.jooq:jooq'
-	codegenToolsImplementation 'org.jooq:jooq-codegen'
-}
-
-def toolchainService = project.extensions.getByType(JavaToolchainService)
-def javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
-def targetLauncher = toolchainService.launcherFor(javaPluginExtension.toolchain)
-
-def profile = project.hasProperty('targetEnv') ? project.property('targetEnv') : 'dev'
-
-def codegenDbPath = project.layout.buildDirectory.file('generated-db/wardenpos.db').get().asFile.path
-def migrationsDir = project.layout.projectDirectory.dir('src/main/resources/db/migration').asFile.path
-
-
-jooq {
-	configuration {
-		jdbc {
-			driver = 'org.sqlite.JDBC'
-			url = "jdbc:sqlite:${codegenDbPath}"
-		}
-		generator {
-			target {
-				packageName = 'me.carlosalmanzab.wardenpos.jooq.generated'
-				directory = project.layout.buildDirectory.dir('generated-src/jooq/main').get().asFile.path
-			}
-			database {
-				excludes = 'flyway_schema_history'
-				forcedTypes {
-					forcedType {
-						userType = 'java.util.UUID'
-						converter = 'me.carlosalmanzab.wardenpos.jooq.converter.UUIDv7Converter'
-						includeTypes = 'TEXT'
-						includeExpression = '(?i:.*_id|^id$)'
-					}
-				}
-			}
-			generate {
-				// Allows for turning on POJOs generation: default false
-				pojos = true
-				pojosIncludes = ".*"
-				pojosExcludes = "SYSTEM_TABLE_.*"
-			}
-			strategy {
-				// Custom strategy to apply UUIDv7 generation
-				name = 'me.carlosalmanzab.wardenpos.jooq.codegen.WardenPosGeneratorStrategy'
-			}
-		}
-	}
-}
-
-graalvmNative {
-	binaries {
-		main {
-			imageName = 'wardenpos-backend'
-
-			javaLauncher.set(targetLauncher)
-
-			buildArgs.add('--initialize-at-build-time=org.sqlite.JDBC')
-			buildArgs.add('--initialize-at-run-time=org.sqlite.core.DB')
-
-			if (profile == 'prod') {
-				buildArgs.add('-O2')
-				buildArgs.add('--no-fallback')
-				println "compile native binary in PRODUCTION ENV"
-			} else {
-				buildArgs.add('-Ob')
-				println "compile native binary in DEVELOPMENT ENV"
-			}
-		}
-	}
-}
-
-tasks.register('migrateForCodegen', JavaExec) {
-	dependsOn tasks.named('compileCodegenToolsJava')
-	classpath = sourceSets.codegenTools.output + sourceSets.codegenTools.runtimeClasspath
-	mainClass.set('me.carlosalmanzab.wardenpos.buildtools.JooqCodegenMigrationRunner')
-	args = [codegenDbPath, migrationsDir]
-
-	jvmArgs += '--enable-native-access=ALL-UNNAMED'
-}
-
-tasks.named('spotbugsCodegenTools') {
-	enabled = false
-}
-
-tasks.named('jooqCodegen') {
-	dependsOn 'migrateForCodegen'
+    codegenToolsImplementation 'org.flywaydb:flyway-core'
+    codegenToolsImplementation libs.sqlite
+    codegenToolsImplementation 'org.jooq:jooq'
+    codegenToolsImplementation 'org.jooq:jooq-codegen'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
-tasks.register('devSetupReload') {
-	dependsOn(
-	"migrateForCodegen",
-	"jooqCodegen",
-	"spotlessApply"
-	)
-}
-
-tasks.register("quality") {
-	dependsOn(
-	"spotlessCheck",
-	"spotbugsMain",
-	"test"
-	)
-}
-
-tasks.withType(SpotBugsTask).configureEach {
-	reports {
-		html.required = true
-		xml.required = false
-	}
-}
+apply from: 'gradle/jooq.gradle'
+apply from: 'gradle/quality.gradle'
+apply from: 'gradle/native.gradle'

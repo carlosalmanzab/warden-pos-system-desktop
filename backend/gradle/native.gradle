@@ -1,0 +1,27 @@
+def toolchainService = project.extensions.getByType(JavaToolchainService)
+def javaPluginExtension = project.extensions.getByType(JavaPluginExtension)
+def targetLauncher = toolchainService.launcherFor(javaPluginExtension.toolchain)
+
+def profile = project.hasProperty('targetEnv') ? project.property('targetEnv') : 'dev'
+
+graalvmNative {
+    binaries {
+        main {
+            imageName = 'wardenpos-backend'
+
+            javaLauncher.set(targetLauncher)
+
+            buildArgs.add('--initialize-at-build-time=org.sqlite.JDBC')
+            buildArgs.add('--initialize-at-run-time=org.sqlite.core.DB')
+
+            if (profile == 'prod') {
+                buildArgs.add('-O2')
+                buildArgs.add('--no-fallback')
+                println "compile native binary in PRODUCTION ENV"
+            } else {
+                buildArgs.add('-Ob')
+                println "compile native binary in DEVELOPMENT ENV"
+            }
+        }
+    }
+}

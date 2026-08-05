@@ -6,10 +6,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import me.carlosalmanzab.wardenpos.backend.features.auth.service.JwtService;
+import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,12 +20,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
+  private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
   private final JwtService jwtService;
   private final UserDetailsService detailsService;
+
+  public JwtAuthFilter(JwtService jwtService, UserDetailsService detailsService) {
+    this.jwtService = jwtService;
+    this.detailsService = detailsService;
+  }
 
   @Override
   protected void doFilterInternal(

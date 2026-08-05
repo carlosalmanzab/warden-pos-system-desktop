@@ -1,0 +1,40 @@
+def effortMax = project.buildscript.classLoader.loadClass('com.github.spotbugs.snom.Effort').MAX
+def confidenceMedium = project.buildscript.classLoader.loadClass('com.github.spotbugs.snom.Confidence').MEDIUM
+spotless {
+    java {
+        target("src/**/*.java")
+        googleJavaFormat()
+        removeUnusedImports()
+        formatAnnotations()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovyGradle {
+        target("*.gradle")
+        greclipse()
+    }
+}
+
+spotbugs {
+    effort = effortMax
+    reportLevel = confidenceMedium
+}
+
+tasks.named('spotbugsCodegenTools') {
+    enabled = false
+}
+
+tasks.matching { it.name.startsWith("spotbugs") }.configureEach {
+    reports {
+        html.required = true
+        xml.required = false
+    }
+}
+
+tasks.register("quality") {
+    dependsOn(
+            "spotlessCheck",
+            "spotbugsMain",
+            "test"
+    )
+}

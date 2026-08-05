@@ -1,0 +1,59 @@
+def codegenDbPath = project.layout.buildDirectory.file('generated-db/wardenpos.db').get().asFile.path
+def migrationsDir = project.layout.projectDirectory.dir('src/main/resources/db/migration').asFile.path
+
+jooq {
+    configuration {
+        jdbc {
+            driver = 'org.sqlite.JDBC'
+            url = "jdbc:sqlite:${codegenDbPath}"
+        }
+        generator {
+            target {
+                packageName = 'me.carlosalmanzab.wardenpos.jooq.generated'
+                directory = project.layout.buildDirectory.dir('generated-src/jooq/main').get().asFile.path
+            }
+            database {
+                excludes = 'flyway_schema_history'
+                forcedTypes {
+                    forcedType {
+                        userType = 'java.util.UUID'
+                        converter = 'me.carlosalmanzab.wardenpos.jooq.converter.UUIDv7Converter'
+                        includeTypes = 'TEXT'
+                        includeExpression = '(?i:.*_id|^id$)'
+                    }
+                }
+            }
+            generate {
+                pojos = true
+                pojosAsJavaRecordClasses = true
+                pojosIncludes = ".*"
+                pojosExcludes = "SYSTEM_TABLE_.*"
+            }
+            strategy {
+                // Custom strategy to apply UUIDv7 generation
+                name = 'me.carlosalmanzab.wardenpos.jooq.codegen.WardenPosGeneratorStrategy'
+            }
+        }
+    }
+}
+
+tasks.register('migrateForCodegen', JavaExec) {
+    dependsOn tasks.named('compileCodegenToolsJava')
+    classpath = sourceSets.codegenTools.output + sourceSets.codegenTools.runtimeClasspath
+    mainClass.set('me.carlosalmanzab.wardenpos.buildtools.JooqCodegenMigrationRunner')
+    args = [codegenDbPath, migrationsDir]
+
+    jvmArgs += '--enable-native-access=ALL-UNNAMED'
+}
+
+tasks.named('jooqCodegen') {
+    dependsOn 'migrateForCodegen'
+}
+
+tasks.register('devSetupReload') {
+    dependsOn(
+            "migrateForCodegen",
+            "jooqCodegen",
+            "spotlessApply"
+    )
+}

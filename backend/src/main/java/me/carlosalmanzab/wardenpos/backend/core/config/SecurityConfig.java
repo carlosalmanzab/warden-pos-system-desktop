@@ -1,7 +1,6 @@
 package me.carlosalmanzab.wardenpos.backend.core.config;
 
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import me.carlosalmanzab.wardenpos.backend.core.AppProperties;
 import me.carlosalmanzab.wardenpos.backend.core.filter.HttpLoggingFilter;
 import me.carlosalmanzab.wardenpos.backend.core.filter.JwtAuthFilter;
@@ -22,9 +21,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
   private final AppProperties properties;
+
+  public SecurityConfig(AppProperties properties) {
+    this.properties = properties;
+  }
 
   @Bean
   CorsConfigurationSource corsConfigurationSource() {

@@ -5,16 +5,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Slf4j
 @Component
-@RequiredArgsConstructor
 public class HttpLoggingFilter extends OncePerRequestFilter {
+  private static final Logger log = LoggerFactory.getLogger(HttpLoggingFilter.class);
+
   @Override
   protected void doFilterInternal(
       @NonNull HttpServletRequest request,
